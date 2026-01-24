@@ -1,17 +1,14 @@
-import { Object, type coordsType } from './Object';
+import { Object, type coordsType, type ObjectProps } from './Object';
+
+interface EnemyProps extends ObjectProps {}
 
 export class Enemy extends Object {
   private angle: number = 0;
   private speed: number = 1;
   private amplitude: number = 2;
 
-  constructor(
-    position: coordsType,
-    ctx: CanvasRenderingContext2D,
-    size?: coordsType,
-  ) {
-    super(position, ctx, size);
-    console.log(this.ctx.lineDashOffset);
+  constructor(props: EnemyProps) {
+    super(props);
   }
 
   fire() {}
