@@ -23,8 +23,6 @@ document.addEventListener('keydown', (e) => {
       controls.down = true;
       break;
     case 'Space':
-      console.log('dsa');
-
       controls.space = true;
 
       break;

@@ -24,7 +24,7 @@ export class Object {
     this.canvaseSize = { x: this.ctx.lineWidth, y: this.ctx.lineDashOffset };
     this.start = { x: position.x, y: position.y };
     this.image = new Image();
-    this.image.src = imageSrc || '/accets/Placeholder.png';
+    this.image.src = imageSrc || '/assets/Placeholder.png';
   }
 
   draw() {

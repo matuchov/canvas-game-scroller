@@ -1,7 +1,7 @@
-import { controls } from '../../utils/Controls';
 import { Laser } from './Laser';
-import { lasers } from '../../main';
 import { Object, type coordsType, type ObjectProps } from './Object';
+import type { controls } from '../utils/Controls';
+import { game } from '../main';
 
 interface PlayerProps extends ObjectProps {
   control: typeof controls;
@@ -15,7 +15,7 @@ export class Player extends Object {
   }
 
   fire() {
-    lasers.push(
+    game.lasers.push(
       new Laser({
         position: { x: this.position.x, y: this.position.y },
         ctx: this.ctx,
