@@ -1,8 +1,8 @@
-import { checkCircleCollision } from './Colision';
-import { controls } from './Controls';
-import { Enemy } from './Enemy';
-import { Object } from './Object';
-import { Player } from './Player';
+import { checkCircleCollision } from './utils/Colision';
+import { controls } from './utils/Controls';
+import { Enemy } from './src/components/Enemy';
+import { Object } from './src/components/Object';
+import { Player } from './src/components/Player';
 
 const canvas = document.querySelector('canvas');
 
@@ -17,8 +17,17 @@ ctx!.fillRect(0, 0, canvas!.width, canvas!.height);
 const enemies: Object[] = [];
 export const lasers: Object[] = [];
 
-const player = new Player({ x: 100, y: 200 }, ctx!, controls);
-const enemy1 = new Enemy({ x: 100, y: 200 }, ctx!);
+const player = new Player({
+  position: { x: 270, y: 750 },
+  ctx: ctx!,
+  control: controls,
+  imageSrc: '/accets/player.png',
+});
+const enemy1 = new Enemy({
+  position: { x: 100, y: 100 },
+  ctx: ctx!,
+  imageSrc: '/accets/enemy.png',
+});
 enemies.push(enemy1);
 
 function animate() {

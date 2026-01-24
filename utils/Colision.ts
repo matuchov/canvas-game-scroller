@@ -1,4 +1,4 @@
-import type { Object } from './Object';
+import type { Object } from '../src/components/Object';
 
 export function checkCircleCollision(obj1: Object, obj2: Object): boolean {
   const dx =
