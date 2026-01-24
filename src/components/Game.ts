@@ -64,7 +64,7 @@ export class Game {
   }
 
   private handleCollisions() {
-    this.lasers.forEach((laser, lIdx) => {
+    this.lasers.forEach((laser) => {
       this.enemies.forEach((enemy, eIdx) => {
         if (checkCircleCollision(enemy, laser)) {
           this.enemies.splice(eIdx, 1);

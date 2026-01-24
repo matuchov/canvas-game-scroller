@@ -1,5 +1,5 @@
 import { Laser } from './Laser';
-import { Object, type coordsType, type ObjectProps } from './Object';
+import { Object, type ObjectProps } from './Object';
 import type { controls } from '../utils/Controls';
 import { game } from '../main';
 
