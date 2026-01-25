@@ -1,21 +1,35 @@
 import { Laser } from './Laser';
-import { Object, type coordsType, type ObjectProps } from './Object';
+import { Object, type ObjectProps } from './Object';
 import type { controls } from '../utils/Controls';
-import { game } from '../main';
 
 interface PlayerProps extends ObjectProps {
   control: typeof controls;
 }
 
 export class Player extends Object {
-  controls: typeof controls;
+  private controls: typeof controls;
+  lasers: Laser[] = [];
+  private shotTimer = 0;
+  private shotDelay = 40;
+
   constructor({ position, ctx, control, size, imageSrc }: PlayerProps) {
     super({ position, ctx, size, imageSrc });
     this.controls = control;
   }
 
+  private handleShooting() {
+    if (this.shotTimer > 0) {
+      this.shotTimer--;
+    }
+
+    if (this.controls.space && this.shotTimer <= 0) {
+      this.fire();
+      this.shotTimer = this.shotDelay;
+    }
+  }
+
   fire() {
-    game.lasers.push(
+    this.lasers.push(
       new Laser({
         position: { x: this.position.x, y: this.position.y },
         ctx: this.ctx,
@@ -23,6 +37,7 @@ export class Player extends Object {
         speed: -10,
       }),
     );
+    this.lasers = this.lasers.filter((laser) => laser.position.y > 0);
   }
 
   move(): void {
@@ -37,8 +52,7 @@ export class Player extends Object {
       this.position.x += 2;
     }
 
-    if (this.controls.space) {
-      this.fire();
-    }
+    this.handleShooting();
+    this.lasers.forEach((el) => el.render());
   }
 }
