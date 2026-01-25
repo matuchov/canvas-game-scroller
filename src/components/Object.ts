@@ -17,12 +17,16 @@ export class Object {
   canvaseSize: coordsType;
   start: coordsType;
   image: HTMLImageElement;
-  constructor({ position, ctx, size, imageSrc }: ObjectProps) {
+  constructor({ position, ctx, imageSrc }: ObjectProps) {
     this.position = position;
     this.image = new Image();
     this.image.src = imageSrc || '/assets/Placeholder.png';
     this.ctx = ctx;
-    this.size = { x: this.image.width, y: this.image.height };
+    this.size = { x: 0, y: 0 };
+    this.image.onload = () => {
+      this.size = { x: this.image.width, y: this.image.height };
+    };
+
     this.canvaseSize = { x: this.ctx.lineWidth, y: this.ctx.lineDashOffset };
     this.start = { x: position.x, y: position.y };
   }

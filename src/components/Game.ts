@@ -4,6 +4,7 @@ import { Background } from '../components/Background';
 import { Enemy } from '../components/Enemy';
 import { checkCollision } from '../utils/Colision';
 import { getRandomInt } from '../utils/Math';
+import { Score } from './Score';
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -12,6 +13,8 @@ export class Game {
   private enemies: Enemy[] = [];
   private backgrounds: Background[] = [];
   private controls: typeof controls;
+  private score: number = 0;
+  private scores: Score;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -24,6 +27,11 @@ export class Game {
       ctx: this.ctx,
       control: this.controls,
       imageSrc: '/assets/player.png',
+    });
+    this.scores = new Score({
+      score: this.score,
+      position: { x: 270, y: 650 },
+      ctx: this.ctx,
     });
 
     this.initBackgrounds();
@@ -64,10 +72,11 @@ export class Game {
   }
 
   private handleCollisions() {
-    this.player.lasers.forEach((laser, lIdx) => {
+    this.player.lasers.forEach((laser) => {
       this.enemies.forEach((enemy, eIdx) => {
         if (checkCollision(enemy, laser)) {
           this.enemies.splice(eIdx, 1);
+          this.score += 100;
         }
       });
     });
@@ -80,6 +89,8 @@ export class Game {
     this.spawnEnemies();
     this.enemies.forEach((enemy) => enemy.render());
     this.handleCollisions();
+    this.scores.setScore(this.score);
+
     requestAnimationFrame(() => this.render());
   }
 }

@@ -1,6 +1,6 @@
 import { getRandomInt } from '../utils/Math';
 import { Laser } from './Laser';
-import { Object, type coordsType, type ObjectProps } from './Object';
+import { Object, type ObjectProps } from './Object';
 
 interface EnemyProps extends ObjectProps {}
 

@@ -1,4 +1,4 @@
-import { Object, type coordsType, type ObjectProps } from './Object';
+import { Object, type ObjectProps } from './Object';
 
 interface LaserProps extends ObjectProps {
   speed?: number;
