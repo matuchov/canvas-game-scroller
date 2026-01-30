@@ -1,10 +1,10 @@
 import { getRandomInt } from '../utils/Math';
 import { Laser } from './Laser';
-import { Object, type ObjectProps } from './Object';
+import { BaseElement, type ObjectProps } from './Object';
 
 interface EnemyProps extends ObjectProps {}
 
-export class Enemy extends Object {
+export class Enemy extends BaseElement {
   private angle: number = 0;
   private speed: number = 1;
   private amplitude: number = getRandomInt(1, 4);

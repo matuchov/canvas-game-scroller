@@ -1,10 +1,10 @@
-import { Object, type ObjectProps } from './Object';
+import { BaseElement, type ObjectProps } from './Object';
 
 interface ScoreProps extends ObjectProps {
   score: number;
 }
 
-export class Score extends Object {
+export class Score extends BaseElement {
   score: number;
   constructor(props: ScoreProps) {
     const position = { x: 450, y: 30 };

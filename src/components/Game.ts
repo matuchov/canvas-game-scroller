@@ -5,6 +5,7 @@ import { Enemy } from '../components/Enemy';
 import { checkCollision } from '../utils/Colision';
 import { getRandomInt } from '../utils/Math';
 import { Score } from './Score';
+import { Board } from './Board';
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -15,6 +16,7 @@ export class Game {
   private controls: typeof controls;
   private score: number = 0;
   private scores: Score;
+  private board: Board;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -22,75 +24,31 @@ export class Game {
     this.canvas.width = 700;
     this.canvas.height = 700;
     this.controls = controls;
-    this.player = new Player({
-      position: { x: 270, y: 650 },
-      ctx: this.ctx,
-      control: this.controls,
-      imageSrc: '/assets/player.png',
-    });
-    this.scores = new Score({
-      score: this.score,
-      position: { x: 270, y: 650 },
-      ctx: this.ctx,
-    });
+    this.board = new Board({ position: { x: 70, y: 70 }, ctx: this.ctx });
 
     this.initBackgrounds();
   }
 
   private initBackgrounds() {
-    const assets = [
-      { src: '/assets/background.png', speed: 0 },
-      { src: '/assets/background1.png', speed: 1 },
-      { src: '/assets/background2.png', speed: 2 },
+    this.backgrounds = [
+      new Background({
+        ctx: this.ctx,
+        position: { x: 0, y: 0 },
+        size: { x: 900, y: 900 },
+        speed: 0,
+        color: 'royalblue',
+      }),
     ];
-    this.backgrounds = assets.map(
-      (asset) =>
-        new Background({
-          ctx: this.ctx,
-          position: { x: 0, y: -1300 },
-          speed: asset.speed,
-          imageSrc: asset.src,
-        }),
-    );
   }
 
-  private spawnEnemies() {
-    if (this.enemies.length === 0) {
-      for (let i = 0; i < 5; i++) {
-        this.enemies.push(
-          new Enemy({
-            position: {
-              x: 100 + 100 * i,
-              y: 10 + getRandomInt(0, 50),
-            },
-            ctx: this.ctx,
-            imageSrc: '/assets/enemy.png',
-          }),
-        );
-      }
-    }
-  }
+  private spawnEnemies() {}
 
-  private handleCollisions() {
-    this.player.lasers.forEach((laser) => {
-      this.enemies.forEach((enemy, eIdx) => {
-        if (checkCollision(enemy, laser)) {
-          this.enemies.splice(eIdx, 1);
-          this.score += 100;
-        }
-      });
-    });
-  }
+  private handleCollisions() {}
 
   public render() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.backgrounds.forEach((bg) => bg.render());
-    this.player.render();
-    this.spawnEnemies();
-    this.enemies.forEach((enemy) => enemy.render());
-    this.handleCollisions();
-    this.scores.setScore(this.score);
-
+    this.board.render();
     requestAnimationFrame(() => this.render());
   }
 }

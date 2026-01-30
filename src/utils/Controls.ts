@@ -1,3 +1,5 @@
+import { EventBus } from './EventBus';
+
 export const controls = {
   left: false,
   right: false,
@@ -5,6 +7,27 @@ export const controls = {
   down: false,
   space: false,
 };
+
+const EVENTS = {
+  CELL_CLICK: 'init',
+} as const;
+
+type TEventBus<T> = {
+  [EVENTS.CELL_CLICK]: [{ x: number; y: number }];
+};
+
+class Controls extends EventBus<TEventBus<any>> {
+  constructor() {
+    super();
+    document.addEventListener('mousedown', (e) => {
+      const x = Math.floor(e.offsetX);
+      const y = Math.floor(e.offsetY);
+      this.emit('init', { x, y });
+    });
+  }
+}
+
+export const controlsController = new Controls();
 
 document.addEventListener('keydown', (e) => {
   const key = e.code;

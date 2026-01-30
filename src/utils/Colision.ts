@@ -1,6 +1,9 @@
-import type { Object } from '../components/Object';
+import type { BaseElement } from '../components/Object';
 
-export function checkCircleCollision(obj1: Object, obj2: Object): boolean {
+export function checkCircleCollision(
+  obj1: BaseElement,
+  obj2: BaseElement,
+): boolean {
   const dx =
     obj1.position.x + obj1.size.x / 2 - (obj2.position.x + obj2.size.x / 2);
   const dy =
@@ -10,7 +13,7 @@ export function checkCircleCollision(obj1: Object, obj2: Object): boolean {
   return distance < minDistance;
 }
 
-export function checkCollision(obj1: Object, obj2: Object): boolean {
+export function checkCollision(obj1: BaseElement, obj2: BaseElement): boolean {
   return (
     obj1.position.x < obj2.position.x + obj2.size.x &&
     obj1.position.x + obj1.size.x > obj2.position.x &&

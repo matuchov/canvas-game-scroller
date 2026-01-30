@@ -1,10 +1,10 @@
-import { Object, type ObjectProps } from './Object';
+import { BaseElement, type ObjectProps } from './Object';
 
 interface LaserProps extends ObjectProps {
   speed?: number;
 }
 
-export class Laser extends Object {
+export class Laser extends BaseElement {
   private speed: number = 1;
 
   constructor({ position, ctx, size, speed }: LaserProps) {

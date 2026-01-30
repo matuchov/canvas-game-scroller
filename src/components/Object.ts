@@ -8,31 +8,48 @@ export type ObjectProps = {
   ctx: CanvasRenderingContext2D;
   size?: coordsType;
   imageSrc?: string;
+  color?: string;
 };
 
-export class Object {
+export class BaseElement {
   position: coordsType;
   ctx: CanvasRenderingContext2D;
   size: coordsType;
   canvaseSize: coordsType;
   start: coordsType;
-  image: HTMLImageElement;
-  constructor({ position, ctx, imageSrc }: ObjectProps) {
+  image: HTMLImageElement = new Image();
+  type: 'sprite' | 'canvas';
+  color: string;
+  constructor({ position, ctx, imageSrc, size, color }: ObjectProps) {
     this.position = position;
-    this.image = new Image();
-    this.image.src = imageSrc || '/assets/Placeholder.png';
     this.ctx = ctx;
-    this.size = { x: 0, y: 0 };
-    this.image.onload = () => {
-      this.size = { x: this.image.width, y: this.image.height };
-    };
+    this.color = color || 'ffffff';
+    this.size = size || { x: 10, y: 10 };
+    imageSrc ? (this.type = 'sprite') : (this.type = 'canvas');
+    if (this.type === 'sprite') {
+      this.image.src = imageSrc || '/assets/Placeholder.png';
+      this.size = { x: 0, y: 0 };
+      this.image.onload = () => {
+        this.size = { x: this.image.width, y: this.image.height };
+      };
+    }
 
     this.canvaseSize = { x: this.ctx.lineWidth, y: this.ctx.lineDashOffset };
     this.start = { x: position.x, y: position.y };
   }
 
   draw() {
-    this.ctx.drawImage(this.image, this.position.x, this.position.y);
+    if (this.type === 'sprite') {
+      this.ctx.drawImage(this.image, this.position.x, this.position.y);
+    } else {
+      const { x, y } = this.position;
+      const w = this.size.x;
+      const h = this.size.y;
+      this.ctx.fillStyle = this.color;
+      this.ctx.lineWidth = 2; // Толщина линии
+      // this.ctx.strokeRect(x, y, w, h);
+      this.ctx.fillRect(x, y, w, h);
+    }
   }
   private _move() {
     this.move();

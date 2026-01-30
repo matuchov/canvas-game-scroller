@@ -1,12 +1,12 @@
 import { Laser } from './Laser';
-import { Object, type ObjectProps } from './Object';
+import { BaseElement, type ObjectProps } from './Object';
 import type { controls } from '../utils/Controls';
 
 interface PlayerProps extends ObjectProps {
   control: typeof controls;
 }
 
-export class Player extends Object {
+export class Player extends BaseElement {
   private controls: typeof controls;
   lasers: Laser[] = [];
   private shotTimer = 0;
