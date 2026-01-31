@@ -3,13 +3,13 @@ export type coordsType = {
   y: number;
 };
 
-export type ObjectProps = {
+export interface IBaseElement {
   position: coordsType;
   ctx: CanvasRenderingContext2D;
   size?: coordsType;
   imageSrc?: string;
   color?: string;
-};
+}
 
 export class BaseElement {
   position: coordsType;
@@ -20,7 +20,7 @@ export class BaseElement {
   image: HTMLImageElement = new Image();
   type: 'sprite' | 'canvas';
   color: string;
-  constructor({ position, ctx, imageSrc, size, color }: ObjectProps) {
+  constructor({ position, ctx, imageSrc, size, color }: IBaseElement) {
     this.position = position;
     this.ctx = ctx;
     this.color = color || 'ffffff';

@@ -1,6 +1,6 @@
-import { BaseElement, type ObjectProps } from './Object';
+import { BaseElement, type IBaseElement } from './Object';
 
-interface ScoreProps extends ObjectProps {
+interface ScoreProps extends IBaseElement {
   score: number;
 }
 

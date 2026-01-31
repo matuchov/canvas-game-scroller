@@ -1,6 +1,6 @@
-import { BaseElement, type ObjectProps } from './Object';
+import { BaseElement, type IBaseElement } from './Object';
 
-interface LaserProps extends ObjectProps {
+interface LaserProps extends IBaseElement {
   speed?: number;
 }
 

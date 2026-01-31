@@ -1,8 +1,8 @@
 import { Laser } from './Laser';
-import { BaseElement, type ObjectProps } from './Object';
+import { BaseElement, type IBaseElement } from './Object';
 import type { controls } from '../utils/Controls';
 
-interface PlayerProps extends ObjectProps {
+interface PlayerProps extends IBaseElement {
   control: typeof controls;
 }
 

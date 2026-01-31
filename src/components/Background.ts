@@ -1,6 +1,6 @@
-import { BaseElement, type ObjectProps } from './Object';
+import { BaseElement, type IBaseElement } from './Object';
 
-interface BackgroundProps extends ObjectProps {
+interface BackgroundProps extends IBaseElement {
   speed: number;
 }
 
@@ -9,7 +9,6 @@ export class Background extends BaseElement {
   constructor(props: BackgroundProps) {
     super(props);
     this.speed = props.speed;
-    
   }
 
   // draw(): void {

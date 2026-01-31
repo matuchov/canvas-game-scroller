@@ -1,8 +1,8 @@
 import { getRandomInt } from '../utils/Math';
 import { Laser } from './Laser';
-import { BaseElement, type ObjectProps } from './Object';
+import { BaseElement, type IBaseElement } from './Object';
 
-interface EnemyProps extends ObjectProps {}
+interface EnemyProps extends IBaseElement {}
 
 export class Enemy extends BaseElement {
   private angle: number = 0;
