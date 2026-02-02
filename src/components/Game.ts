@@ -1,7 +1,7 @@
-import { Background } from "../components/Background";
+import { Background } from '../components/Background';
 
-import { Score } from "./Score";
-import { Board } from "./Board/Board";
+import { Score } from './Score';
+import { Board } from './Board/Board';
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -9,17 +9,26 @@ export class Game {
   private backgrounds: Background[] = [];
   private score: number = 0;
   private scores: Score;
-  private board: Board;
+  private playerBoard: Board;
+  private enemyBoard: Board;
+  private fps = 1;
+  private interval = 1000 / this.fps;
+  private lastTime = 0;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
-    this.ctx = canvas.getContext("2d")!;
+    this.ctx = canvas.getContext('2d')!;
     this.canvas.width = 700;
     this.canvas.height = 700;
-    this.board = new Board({
+    this.playerBoard = new Board({
       position: { x: 70, y: 70 },
       ctx: this.ctx,
-      type: "player",
+      boardType: 'player',
+    });
+    this.enemyBoard = new Board({
+      position: { x: 370, y: 70 },
+      ctx: this.ctx,
+      boardType: 'enemy',
     });
 
     this.initBackgrounds();
@@ -32,15 +41,23 @@ export class Game {
         position: { x: 0, y: 0 },
         size: { x: 900, y: 900 },
         speed: 0,
-        color: "royalblue",
+        color: 'royalblue',
       }),
     ];
   }
 
-  public render() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.backgrounds.forEach((bg) => bg.render());
-    this.board.render();
-    requestAnimationFrame(() => this.render());
+  public render(currentTime: number = 0) {
+    requestAnimationFrame((time) => this.render(time));
+
+    const deltaTime = currentTime - this.lastTime;
+
+    if (deltaTime > this.interval) {
+      this.lastTime = currentTime - (deltaTime % this.interval);
+
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.backgrounds.forEach((bg) => bg.render());
+      this.playerBoard.render();
+      this.enemyBoard.render();
+    }
   }
 }
