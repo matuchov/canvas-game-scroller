@@ -1,58 +1,64 @@
-import { store, type GameStore } from '../../core/store';
-import { checkClick } from '../../utils/Colision';
-import { controlsController } from '../../utils/Controls';
-import { getRandomInt } from '../../utils/Math';
-import { validatePlacement } from '../../utils/ValidateShip';
-import { CONSTS } from '../const';
-import type { coordsType } from '../Object';
-import type { Board } from './Board';
+import type { Board } from '../components/Board';
+import { CONSTS } from '../components/const';
+import type { coordsType } from '../components/Object';
+import { checkClick } from '../utils/checkClick';
+import { getRandomInt } from '../utils/Math';
+import { validatePlacement } from '../utils/ValidateShip';
+import { store, type GameStore } from './Store';
 
 export class GameController {
   store: typeof store;
-  board: Board;
+  playerBoard: Board;
+  enemyBoard: Board;
 
-  constructor(board: Board) {
+  constructor(playerBoard: Board, enemyBoard: Board) {
     this.store = store;
-    this.board = board;
+    this.playerBoard = playerBoard;
+    this.enemyBoard = enemyBoard;
   }
   init() {
-    controlsController.on('click', this.clickHandler.bind(this));
+    document.addEventListener('mousedown', (e) => {
+      const x = Math.floor(e.offsetX);
+      const y = Math.floor(e.offsetY);
+      this.clickHandler({ x, y });
+    });
     store.on('update', this.enemyHandler.bind(this));
   }
 
-  enemyHandler(_: GameStore, newState: GameStore) {
-    const { phase, currentTurn } = newState;
-    console.log(phase, currentTurn);
+  enemyHandler(state?: GameStore) {
+    state = state ? state : store.getStore();
+    const { phase, currentTurn } = state;
+
     if (phase === 'BATTLE' && currentTurn === 'ENEMY') {
       const x = getRandomInt(0, 9);
       const y = getRandomInt(0, 9);
-      setTimeout(() => {
-        this.fireShot({ x, y }, 'enemy');
-      }, 500);
+      this.fireShot({ x, y }, 'enemy');
     }
   }
 
   clickHandler({ x, y }: coordsType) {
-    if (checkClick({ x, y }, this.board)) {
-      const { x: offcetX, y: offcetY } = this.board.position;
-      const { x: cellSizeX, y: cellSizeY } = CONSTS.CELL_SIZE;
-      const { currentTurn, phase } = store.getStore();
-      const boardType = this.board.boardType;
-
-      const cellX = Math.floor((x - offcetX) / (cellSizeX + CONSTS.DIVIDER_W));
-      const cellY = Math.floor((y - offcetY) / (cellSizeY + CONSTS.DIVIDER_W));
-
-      if (
-        boardType === 'enemy' &&
-        currentTurn === 'PLAYER' &&
-        phase === 'BATTLE'
-      ) {
-        this.fireShot({ x: cellX, y: cellY }, 'player');
-      }
-      if (boardType === 'player' && phase === 'SETUP') {
-        this.placeShip({ x: cellX, y: cellY });
-      }
+    const { currentTurn, phase } = store.getStore();
+    console.log('dsadsa');
+    if (
+      checkClick({ x, y }, this.enemyBoard) &&
+      currentTurn === 'PLAYER' &&
+      phase === 'BATTLE'
+    ) {
+      this.fireShot(this.coordsToCell({ x, y }, this.enemyBoard), 'player');
     }
+
+    if (checkClick({ x, y }, this.playerBoard) && phase === 'SETUP') {
+      this.placeShip(this.coordsToCell({ x, y }, this.playerBoard));
+    }
+  }
+
+  coordsToCell({ x, y }: coordsType, board: Board) {
+    const { x: offcetX, y: offcetY } = board.position;
+    const { x: cellSizeX, y: cellSizeY } = CONSTS.CELL_SIZE;
+
+    const cellX = Math.floor((x - offcetX) / (cellSizeX + CONSTS.DIVIDER_W));
+    const cellY = Math.floor((y - offcetY) / (cellSizeY + CONSTS.DIVIDER_W));
+    return { x: cellX, y: cellY };
   }
 
   fireShot(cellCoords: coordsType, shooter: 'player' | 'enemy') {
@@ -76,6 +82,8 @@ export class GameController {
           ? { enemyBoard: board, currentTurn: 'ENEMY' }
           : { playerBoard: board, currentTurn: 'PLAYER' },
       );
+    } else if (shooter === 'enemy') {
+      this.enemyHandler();
     }
   }
 

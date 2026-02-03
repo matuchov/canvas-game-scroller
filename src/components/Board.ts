@@ -1,8 +1,7 @@
-import { store, type cellType } from '../../core/store';
+import { store, type cellType } from '../core/Store';
 
-import { CONSTS } from '../const';
-import { BaseElement, type IBaseElement } from '../Object';
-import { GameController } from './GameController';
+import { CONSTS } from './const';
+import { BaseElement, type IBaseElement } from './Object';
 
 const { DIVIDER_W, CELL_SIZE } = CONSTS;
 
@@ -14,7 +13,6 @@ interface BoardProps extends IBaseElement {
 
 export class Board extends BaseElement {
   private board: cellType[][];
-  private controller = new GameController(this);
   boardType: TBoardType;
 
   constructor({ position, ctx, size, boardType }: BoardProps) {
@@ -23,7 +21,6 @@ export class Board extends BaseElement {
     this.board = this.getBoard();
     this.boardType = boardType;
     this.size = this.calculateSize();
-    this.controller.init();
   }
 
   getBoard() {

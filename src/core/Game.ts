@@ -1,7 +1,8 @@
 import { Background } from '../components/Background';
 
-import { Messages } from './Messages';
-import { Board } from './Board/Board';
+import { Messages } from '../components/Messages';
+import { Board } from '../components/Board';
+import { GameController } from './GameController';
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -13,6 +14,7 @@ export class Game {
   private fps = 30;
   private interval = 1000 / this.fps;
   private lastTime = 0;
+  private gameController: GameController;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -38,6 +40,8 @@ export class Game {
     });
 
     this.initBackgrounds();
+    this.gameController = new GameController(this.playerBoard, this.enemyBoard);
+    this.gameController.init();
   }
 
   private initBackgrounds() {
