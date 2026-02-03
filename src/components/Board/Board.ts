@@ -4,7 +4,7 @@ import { CONSTS } from '../const';
 import { BaseElement, type IBaseElement } from '../Object';
 import { BoardController } from './BoardController';
 
-const { DIVIDER_W, PLAYER_BOARD_POSITION, CELL_SIZE } = CONSTS;
+const { DIVIDER_W, CELL_SIZE } = CONSTS;
 
 type TBoardType = 'player' | 'enemy';
 
