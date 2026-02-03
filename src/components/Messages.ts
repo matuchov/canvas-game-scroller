@@ -1,4 +1,4 @@
-import { store } from '../store/store';
+import { store } from '../core/store';
 import { BaseElement } from './Object';
 
 export class Messages extends BaseElement {

@@ -1,4 +1,4 @@
-import { store, type GameStore } from '../../store/store';
+import { store, type GameStore } from '../../core/store';
 import { checkClick } from '../../utils/Colision';
 import { controlsController } from '../../utils/Controls';
 import { getRandomInt } from '../../utils/Math';
@@ -7,7 +7,7 @@ import { CONSTS } from '../const';
 import type { coordsType } from '../Object';
 import type { Board } from './Board';
 
-export class BoardController {
+export class GameController {
   store: typeof store;
   board: Board;
 
@@ -26,7 +26,9 @@ export class BoardController {
     if (phase === 'BATTLE' && currentTurn === 'ENEMY') {
       const x = getRandomInt(0, 9);
       const y = getRandomInt(0, 9);
-      this.fireShot({ x, y }, 'enemy');
+      setTimeout(() => {
+        this.fireShot({ x, y }, 'enemy');
+      }, 500);
     }
   }
 
@@ -35,28 +37,21 @@ export class BoardController {
       const { x: offcetX, y: offcetY } = this.board.position;
       const { x: cellSizeX, y: cellSizeY } = CONSTS.CELL_SIZE;
       const { currentTurn, phase } = store.getStore();
-      const boarType = this.board.boardType;
+      const boardType = this.board.boardType;
 
       const cellX = Math.floor((x - offcetX) / (cellSizeX + CONSTS.DIVIDER_W));
       const cellY = Math.floor((y - offcetY) / (cellSizeY + CONSTS.DIVIDER_W));
 
       if (
-        boarType === 'enemy' &&
+        boardType === 'enemy' &&
         currentTurn === 'PLAYER' &&
         phase === 'BATTLE'
       ) {
         this.fireShot({ x: cellX, y: cellY }, 'player');
       }
-      if (boarType === 'player') {
-        this.playerBoardHandler({ x: cellX, y: cellY });
+      if (boardType === 'player' && phase === 'SETUP') {
+        this.placeShip({ x: cellX, y: cellY });
       }
-    }
-  }
-
-  playerBoardHandler(cellCoords: coordsType) {
-    const { x, y } = cellCoords;
-    if (store.getStore().phase === 'SETUP') {
-      this.placeShip({ x, y });
     }
   }
 

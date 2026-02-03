@@ -40,6 +40,8 @@ class Store extends EventBus<TEventBus> {
     return this.store;
   }
   setStore(data: Partial<GameStore>) {
+    console.log(data);
+
     const prevState = { ...this.getStore() };
     Object.assign(this.store, data);
     this.emit('update', prevState, this.getStore());
