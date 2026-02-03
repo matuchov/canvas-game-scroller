@@ -1,20 +1,32 @@
 import { createEnemyShips } from '../utils/createEnemyShips';
+import { EventBus } from '../utils/EventBus';
 
 export type GamePhase = 'SETUP' | 'BATTLE' | 'RESULT';
 export type cellType = 'empty' | 'ship' | 'miss' | 'hited';
 
 export interface GameStore {
   phase: GamePhase;
-  playerBoard: cellType[][]; // 0: пусто, 1: корабль, 2: промах, 3: попадание
+  playerBoard: cellType[][];
   enemyBoard: cellType[][];
   selectedShipId: string | null;
   currentTurn: 'PLAYER' | 'ENEMY';
+  shipsToPlace: number[];
+  message: string;
 }
+
+export const STORE_EVENTS = {
+  STORE_UPDATE: 'update',
+} as const;
+
+type TEventBus = {
+  [STORE_EVENTS.STORE_UPDATE]: [prevState: GameStore, newState: GameStore];
+};
 
 const shipsToPlace = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
 
-class Store {
+class Store extends EventBus<TEventBus> {
   private store: GameStore = {
+    shipsToPlace: shipsToPlace,
     phase: 'SETUP',
     playerBoard: Array(10)
       .fill(0)
@@ -22,12 +34,15 @@ class Store {
     enemyBoard: createEnemyShips(shipsToPlace),
     selectedShipId: null,
     currentTurn: 'PLAYER',
+    message: `Поставьте корабль длинной 4 на поле`,
   };
   getStore() {
     return this.store;
   }
   setStore(data: Partial<GameStore>) {
+    const prevState = { ...this.getStore() };
     Object.assign(this.store, data);
+    this.emit('update', prevState, this.getStore());
   }
 }
 

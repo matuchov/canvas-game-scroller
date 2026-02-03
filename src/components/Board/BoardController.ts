@@ -1,6 +1,8 @@
-import { store } from '../../store/store';
+import { store, type GameStore } from '../../store/store';
 import { checkClick } from '../../utils/Colision';
 import { controlsController } from '../../utils/Controls';
+import { getRandomInt } from '../../utils/Math';
+import { validatePlacement } from '../../utils/ValidateShip';
 import { CONSTS } from '../const';
 import type { coordsType } from '../Object';
 import type { Board } from './Board';
@@ -15,57 +17,99 @@ export class BoardController {
   }
   init() {
     controlsController.on('click', this.clickHandler.bind(this));
+    store.on('update', this.enemyHandler.bind(this));
+  }
+
+  enemyHandler(_: GameStore, newState: GameStore) {
+    const { phase, currentTurn } = newState;
+    console.log(phase, currentTurn);
+    if (phase === 'BATTLE' && currentTurn === 'ENEMY') {
+      const x = getRandomInt(0, 9);
+      const y = getRandomInt(0, 9);
+      this.fireShot({ x, y }, 'enemy');
+    }
   }
 
   clickHandler({ x, y }: coordsType) {
     if (checkClick({ x, y }, this.board)) {
       const { x: offcetX, y: offcetY } = this.board.position;
       const { x: cellSizeX, y: cellSizeY } = CONSTS.CELL_SIZE;
+      const { currentTurn, phase } = store.getStore();
       const boarType = this.board.boardType;
 
       const cellX = Math.floor((x - offcetX) / (cellSizeX + CONSTS.DIVIDER_W));
       const cellY = Math.floor((y - offcetY) / (cellSizeY + CONSTS.DIVIDER_W));
 
-      switch (boarType) {
-        case 'enemy':
-          this.enemyBoardHandler({ x: cellX, y: cellY });
-          break;
-        case 'player':
-          this.playerBoardHandler({ x: cellX, y: cellY });
-          break;
-        default:
-          break;
+      if (
+        boarType === 'enemy' &&
+        currentTurn === 'PLAYER' &&
+        phase === 'BATTLE'
+      ) {
+        this.fireShot({ x: cellX, y: cellY }, 'player');
+      }
+      if (boarType === 'player') {
+        this.playerBoardHandler({ x: cellX, y: cellY });
       }
     }
   }
+
   playerBoardHandler(cellCoords: coordsType) {
     const { x, y } = cellCoords;
-    switch (store.getStore().phase) {
-      case 'BATTLE':
-        break;
-      case 'RESULT':
-        break;
-      case 'SETUP':
-        console.log(x, y);
-        break;
-      default:
-        break;
+    if (store.getStore().phase === 'SETUP') {
+      this.placeShip({ x, y });
     }
   }
 
-  enemyBoardHandler(cellCoords: coordsType) {
+  fireShot(cellCoords: coordsType, shooter: 'player' | 'enemy') {
     const { x, y } = cellCoords;
-    const enemyBoard = [...store.getStore().enemyBoard];
-    const cellState = enemyBoard[y][x];
+    const board =
+      shooter === 'player'
+        ? [...store.getStore().enemyBoard]
+        : [...store.getStore().playerBoard];
+    const cellState = board[y][x];
 
     if (cellState === 'ship') {
-      enemyBoard[y][x] = 'hited';
-      this.store.setStore({ enemyBoard });
+      board[y][x] = 'hited';
+      this.store.setStore(
+        shooter === 'player' ? { enemyBoard: board } : { playerBoard: board },
+      );
     } else if (cellState === 'empty') {
-      enemyBoard[y][x] = 'miss';
+      board[y][x] = 'miss';
 
-      this.store.setStore({ enemyBoard });
-      this.store.setStore({ currentTurn: 'ENEMY' });
+      this.store.setStore(
+        shooter === 'player'
+          ? { enemyBoard: board, currentTurn: 'ENEMY' }
+          : { playerBoard: board, currentTurn: 'PLAYER' },
+      );
+    }
+  }
+
+  placeShip(cellCoords: coordsType) {
+    const { x, y } = cellCoords;
+
+    const { shipsToPlace, playerBoard } = store.getStore();
+    const currentShip = shipsToPlace[0];
+
+    if (validatePlacement(playerBoard, x, y, currentShip, 'row')) {
+      const newBoard = [...playerBoard];
+      const shipCoord = Array(currentShip)
+        .fill(0)
+        .map((_, i) => {
+          return { x: x + i, y: y };
+        });
+      shipCoord.forEach(({ x, y }) => {
+        newBoard[y][x] = 'ship';
+      });
+      const newShipsToPlace = [...shipsToPlace.slice(1, shipsToPlace.length)];
+      store.setStore({
+        playerBoard: newBoard,
+        shipsToPlace: newShipsToPlace,
+        message: `Поставьте корабль длинной ${newShipsToPlace[0]} на поле`,
+      });
+
+      if (newShipsToPlace.length === 0) {
+        store.setStore({ phase: 'BATTLE', message: 'Ваш ход' });
+      }
     }
   }
 }
