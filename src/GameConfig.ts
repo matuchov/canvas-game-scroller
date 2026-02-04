@@ -4,7 +4,7 @@ export const GAME_CONFIG = {
     x: 20,
     y: 20,
   },
-  FPS: 30,
+  FPS: 60,
   DIVIDER_W: 2,
   PLAYER_BOARD_POSITION: { x: 40, y: 50 },
   ENEMY_BOARD_POSITION: { x: 40, y: 320 },

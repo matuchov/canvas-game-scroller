@@ -20,9 +20,10 @@ export class Bullet extends BaseElement {
 
   update() {
     this.progress += this.speed;
-    if (this.progress >= 1) {
+    if (this.progress >= 1 && this.onComplete) {
       this.progress = 1;
       this.onComplete!();
+      this.onComplete = null;
     }
   }
 
