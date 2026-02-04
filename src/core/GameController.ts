@@ -1,4 +1,3 @@
-import { Bullet } from './../components/Bullet';
 import { EnemyAI } from './../components/EnemyAI';
 import type { Board } from '../components/Board';
 import type { coordsType } from '../components/Object';
@@ -38,23 +37,14 @@ export class GameController {
   private async enemyHandler() {
     const board = store.getStore().playerBoard.map((row) => [...row]);
     const coors = this.enemyAI.getNextShot();
-    // await new Promise((res) => setTimeout(res, 800));
+    await new Promise((res) => setTimeout(res, 800));
     const { board: playerBoard, result } = fireShot(coors, board);
-    const onComplite = () => {
-      store.setStore({ playerBoard });
-      if (result === 'hit' || result === 'null') {
-        this.enemyHandler();
-      } else if (result === 'miss') {
-        store.setStore({ currentTurn: 'PLAYER' });
-      }
-    };
-    const bullet = new Bullet({
-      ctx: this.enemyBoard.ctx,
-      end: { x: coors.x * 10 + 30, y: coors.y * 10 + 30 },
-      onComplite,
-      position: { x: 300, y: 300 },
-    });
-    this.game.addEffect(bullet);
+    store.setStore({ playerBoard });
+    if (result === 'hit' || result === 'null') {
+      this.enemyHandler();
+    } else if (result === 'miss') {
+      store.setStore({ currentTurn: 'PLAYER', message: 'Ваш ход' });
+    }
   }
 
   public playerHandler(cellCoords: coordsType) {
@@ -62,7 +52,7 @@ export class GameController {
     const { board: enemyBoard, result } = fireShot(cellCoords, board);
     store.setStore({ enemyBoard });
     if (result === 'miss') {
-      store.setStore({ currentTurn: 'ENEMY' });
+      store.setStore({ currentTurn: 'ENEMY', message: 'Ход противника' });
       this.enemyHandler();
     }
   }

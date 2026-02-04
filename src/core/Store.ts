@@ -26,7 +26,7 @@ const shipsToPlace = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
 
 class Store extends EventBus<TEventBus> {
   private store: GameStore = {
-    shipsToPlace: [],
+    shipsToPlace: shipsToPlace,
     phase: 'SETUP',
     playerBoard: Array(10)
       .fill(0)

@@ -41,7 +41,7 @@ export class Game {
       ctx: this.ctx,
       boardType: 'enemy',
       board: enemyBoard,
-      colors: config.colors,
+      colors: { ...config.colors, ship: config.colors.empty },
     });
 
     this.initBackgrounds();
