@@ -4,7 +4,7 @@ import { Board } from '../components/Board';
 import { GameController } from './GameController';
 import type { GAME_CONFIG } from '../GameConfig';
 import { store } from './Store';
-import type { BaseElement } from '../components/Object';
+import type { Bullet } from '../components/Bullet';
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -16,7 +16,7 @@ export class Game {
   private interval: number;
   private lastTime = 0;
   private gameController: GameController;
-  private effects: BaseElement[] = [];
+  private effects: Bullet[] = [];
 
   constructor(canvas: HTMLCanvasElement, config: typeof GAME_CONFIG) {
     this.interval = 1000 / config.FPS;
@@ -68,7 +68,7 @@ export class Game {
     this.gameController.destroy();
   }
 
-  addEffect(effect: BaseElement) {
+  addEffect(effect: Bullet) {
     this.effects.push(effect);
   }
 
@@ -86,7 +86,11 @@ export class Game {
       this.playerBoard.render(playerBoard);
       this.enemyBoard.render(enemyBoard);
 
-      this.effects.forEach((effect) => effect.render());
+      this.effects = this.effects.filter((effect) => {
+        effect.render();
+
+        return !effect.isFinished;
+      });
     }
   }
 }
