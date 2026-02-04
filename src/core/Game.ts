@@ -45,7 +45,11 @@ export class Game {
     });
 
     this.initBackgrounds();
-    this.gameController = new GameController(this.playerBoard, this.enemyBoard);
+    this.gameController = new GameController(
+      this.playerBoard,
+      this.enemyBoard,
+      this,
+    );
     this.gameController.init();
   }
 
@@ -70,7 +74,6 @@ export class Game {
 
   public render(currentTime: number = 0) {
     requestAnimationFrame((time) => this.render(time));
-
     const deltaTime = currentTime - this.lastTime;
 
     if (deltaTime > this.interval) {
@@ -82,7 +85,8 @@ export class Game {
       this.messages.render();
       this.playerBoard.render(playerBoard);
       this.enemyBoard.render(enemyBoard);
-      this.effects.forEach((effect) => effect.render);
+
+      this.effects.forEach((effect) => effect.render());
     }
   }
 }

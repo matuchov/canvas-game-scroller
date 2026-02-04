@@ -2,24 +2,27 @@ import { BaseElement, type coordsType, type IBaseElement } from './Object';
 
 interface bulletProps extends IBaseElement {
   end: coordsType;
+  onComplite: () => void;
 }
 
 export class Bullet extends BaseElement {
   private progress = 0;
   private speed = 0.02;
   private end: coordsType;
+  public onComplete: (() => void) | null = null;
 
   constructor(props: bulletProps) {
     super(props);
-    const { end } = props;
+    const { end, onComplite } = props;
     this.end = end;
+    this.onComplete = onComplite;
   }
 
   update() {
     this.progress += this.speed;
     if (this.progress >= 1) {
       this.progress = 1;
-      this.onComplete();
+      this.onComplete!();
     }
   }
 
@@ -32,6 +35,7 @@ export class Bullet extends BaseElement {
     this.ctx.fillStyle = 'orange';
     this.ctx.fill();
     this.ctx.closePath();
+    this.update();
   }
 
   get isFinished() {
