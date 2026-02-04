@@ -28,10 +28,9 @@ class Store extends EventBus<TEventBus> {
   private store: GameStore = {
     shipsToPlace: [],
     phase: 'SETUP',
-    // playerBoard: Array(10)
-    //   .fill(0)
-    //   .map(() => Array(10).fill('empty')),
-    playerBoard: createEnemyShips(shipsToPlace),
+    playerBoard: Array(10)
+      .fill(0)
+      .map(() => Array(10).fill('empty')),
     enemyBoard: createEnemyShips(shipsToPlace),
     selectedShipId: null,
     currentTurn: 'PLAYER',

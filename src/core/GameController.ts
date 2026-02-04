@@ -4,7 +4,7 @@ import type { coordsType } from '../components/Object';
 import { checkClick, coordsToCell } from '../utils/clickUtils';
 import { fireShot } from '../utils/fireShot';
 import { validatePlacement } from '../utils/ValidateShip';
-import { store, type GameStore } from './Store';
+import { store } from './Store';
 import { PhaseHandlers } from '../utils/PhaseHandlers';
 
 export class GameController {

@@ -4,6 +4,7 @@ import { Board } from '../components/Board';
 import { GameController } from './GameController';
 import type { GAME_CONFIG } from '../GameConfig';
 import { store } from './Store';
+import type { BaseElement } from '../components/Object';
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -15,6 +16,7 @@ export class Game {
   private interval: number;
   private lastTime = 0;
   private gameController: GameController;
+  private effects: BaseElement[] = [];
 
   constructor(canvas: HTMLCanvasElement, config: typeof GAME_CONFIG) {
     this.interval = 1000 / config.FPS;
@@ -62,6 +64,10 @@ export class Game {
     this.gameController.destroy();
   }
 
+  addEffect(effect: BaseElement) {
+    this.effects.push(effect);
+  }
+
   public render(currentTime: number = 0) {
     requestAnimationFrame((time) => this.render(time));
 
@@ -76,6 +82,7 @@ export class Game {
       this.messages.render();
       this.playerBoard.render(playerBoard);
       this.enemyBoard.render(enemyBoard);
+      this.effects.forEach((effect) => effect.render);
     }
   }
 }
