@@ -1,7 +1,9 @@
 import { Background } from '../components/Background';
-
-import { Messages } from './Messages';
-import { Board } from './Board/Board';
+import { Messages } from '../components/Messages';
+import { Board } from '../components/Board';
+import { GameController } from './GameController';
+import type { GAME_CONFIG } from '../GameConfig';
+import { store } from './Store';
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -10,34 +12,39 @@ export class Game {
   private messages: Messages;
   private playerBoard: Board;
   private enemyBoard: Board;
-  private fps = 30;
-  private interval = 1000 / this.fps;
+  private interval: number;
   private lastTime = 0;
+  private gameController: GameController;
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, config: typeof GAME_CONFIG) {
+    this.interval = 1000 / config.FPS;
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
-    this.canvas.width = 300;
-    this.canvas.height = 600;
+    this.canvas.width = config.CANVAS_SIZE.x;
+    this.canvas.height = config.CANVAS_SIZE.y;
     this.messages = new Messages({
       ctx: this.ctx,
-      position: {
-        x: 20,
-        y: 20,
-      },
+      position: config.MESSAGES_POSITION,
     });
+    const { playerBoard, enemyBoard } = store.getStore();
     this.playerBoard = new Board({
-      position: { x: 40, y: 50 },
+      position: config.PLAYER_BOARD_POSITION,
       ctx: this.ctx,
       boardType: 'player',
+      board: playerBoard,
+      colors: config.colors,
     });
     this.enemyBoard = new Board({
-      position: { x: 40, y: 320 },
+      position: config.ENEMY_BOARD_POSITION,
       ctx: this.ctx,
       boardType: 'enemy',
+      board: enemyBoard,
+      colors: config.colors,
     });
 
     this.initBackgrounds();
+    this.gameController = new GameController(this.playerBoard, this.enemyBoard);
+    this.gameController.init();
   }
 
   private initBackgrounds() {
@@ -51,6 +58,9 @@ export class Game {
       }),
     ];
   }
+  public destroy() {
+    this.gameController.destroy();
+  }
 
   public render(currentTime: number = 0) {
     requestAnimationFrame((time) => this.render(time));
@@ -58,12 +68,14 @@ export class Game {
     const deltaTime = currentTime - this.lastTime;
 
     if (deltaTime > this.interval) {
+      const { playerBoard, enemyBoard } = store.getStore();
+
       this.lastTime = currentTime - (deltaTime % this.interval);
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.backgrounds.forEach((bg) => bg.render());
       this.messages.render();
-      this.playerBoard.render();
-      this.enemyBoard.render();
+      this.playerBoard.render(playerBoard);
+      this.enemyBoard.render(enemyBoard);
     }
   }
 }

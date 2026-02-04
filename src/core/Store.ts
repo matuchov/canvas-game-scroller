@@ -19,7 +19,7 @@ export const STORE_EVENTS = {
 } as const;
 
 type TEventBus = {
-  [STORE_EVENTS.STORE_UPDATE]: [prevState: GameStore, newState: GameStore];
+  [STORE_EVENTS.STORE_UPDATE]: [state: GameStore];
 };
 
 const shipsToPlace = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
@@ -42,9 +42,8 @@ class Store extends EventBus<TEventBus> {
   setStore(data: Partial<GameStore>) {
     console.log(data);
 
-    const prevState = { ...this.getStore() };
     Object.assign(this.store, data);
-    this.emit('update', prevState, this.getStore());
+    this.emit('update', this.getStore());
   }
 }
 

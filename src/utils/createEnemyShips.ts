@@ -1,4 +1,4 @@
-import type { cellType } from '../core/store';
+import type { cellType } from '../core/Store';
 import { getRandomInt } from './Math';
 import { validatePlacement } from './ValidateShip';
 
