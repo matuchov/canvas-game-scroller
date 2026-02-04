@@ -57,7 +57,7 @@ export class BaseElement {
 
   move() {}
 
-  render() {
+  render(_?: unknown) {
     this._move();
     this.draw();
   }

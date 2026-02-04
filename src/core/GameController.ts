@@ -1,7 +1,6 @@
 import type { Board } from '../components/Board';
-import { CONSTS } from '../components/const';
 import type { coordsType } from '../components/Object';
-import { checkClick } from '../utils/checkClick';
+import { checkClick, coordsToCell } from '../utils/clickUtils';
 import { getRandomInt } from '../utils/Math';
 import { validatePlacement } from '../utils/ValidateShip';
 import { store, type GameStore } from './Store';
@@ -16,64 +15,49 @@ export class GameController {
     this.playerBoard = playerBoard;
     this.enemyBoard = enemyBoard;
   }
-  init() {
-    document.addEventListener('mousedown', (e) => {
-      const x = Math.floor(e.offsetX);
-      const y = Math.floor(e.offsetY);
-      this.clickHandler({ x, y });
-    });
-    store.on('update', this.enemyHandler.bind(this));
-  }
+  init = () => {
+    document.addEventListener('mousedown', this.handleMouseDown);
+  };
 
-  enemyHandler(state?: GameStore) {
-    state = state ? state : store.getStore();
-    const { phase, currentTurn } = state;
+  private enemyHandler = () => {
+    const { phase, currentTurn } = store.getStore();
 
     if (phase === 'BATTLE' && currentTurn === 'ENEMY') {
       const x = getRandomInt(0, 9);
       const y = getRandomInt(0, 9);
       this.fireShot({ x, y }, 'enemy');
     }
-  }
+  };
 
-  clickHandler({ x, y }: coordsType) {
+  private handleMouseDown = (e: MouseEvent) => {
+    const x = Math.floor(e.offsetX);
+    const y = Math.floor(e.offsetY);
     const { currentTurn, phase } = store.getStore();
-    console.log('dsadsa');
-    if (
-      checkClick({ x, y }, this.enemyBoard) &&
-      currentTurn === 'PLAYER' &&
-      phase === 'BATTLE'
-    ) {
-      this.fireShot(this.coordsToCell({ x, y }, this.enemyBoard), 'player');
+    const clikOnEnemyBoard = checkClick({ x, y }, this.enemyBoard);
+    const clikOnPlayerBoard = checkClick({ x, y }, this.playerBoard);
+
+    if (clikOnEnemyBoard && currentTurn === 'PLAYER' && phase === 'BATTLE') {
+      this.fireShot(coordsToCell({ x, y }, this.enemyBoard), 'player');
+    } else if (clikOnPlayerBoard && phase === 'SETUP') {
+      this.placeShip(coordsToCell({ x, y }, this.playerBoard));
     }
+  };
 
-    if (checkClick({ x, y }, this.playerBoard) && phase === 'SETUP') {
-      this.placeShip(this.coordsToCell({ x, y }, this.playerBoard));
-    }
-  }
-
-  coordsToCell({ x, y }: coordsType, board: Board) {
-    const { x: offcetX, y: offcetY } = board.position;
-    const { x: cellSizeX, y: cellSizeY } = CONSTS.CELL_SIZE;
-
-    const cellX = Math.floor((x - offcetX) / (cellSizeX + CONSTS.DIVIDER_W));
-    const cellY = Math.floor((y - offcetY) / (cellSizeY + CONSTS.DIVIDER_W));
-    return { x: cellX, y: cellY };
-  }
-
-  fireShot(cellCoords: coordsType, shooter: 'player' | 'enemy') {
+  private fireShot = (cellCoords: coordsType, shooter: 'player' | 'enemy') => {
     const { x, y } = cellCoords;
-    const board =
+    const currentBoard =
       shooter === 'player'
-        ? [...store.getStore().enemyBoard]
-        : [...store.getStore().playerBoard];
-    const cellState = board[y][x];
+        ? store.getStore().enemyBoard
+        : store.getStore().playerBoard;
+    const cellState = currentBoard[y][x];
+    const board = currentBoard.map((row) => [...row]);
 
     if (cellState === 'ship') {
       board[y][x] = 'hited';
       this.store.setStore(
         shooter === 'player' ? { enemyBoard: board } : { playerBoard: board },
       );
+      if (shooter === 'enemy') this.enemyHandler();
     } else if (cellState === 'empty') {
       board[y][x] = 'miss';
 
@@ -82,12 +66,13 @@ export class GameController {
           ? { enemyBoard: board, currentTurn: 'ENEMY' }
           : { playerBoard: board, currentTurn: 'PLAYER' },
       );
+      this.enemyHandler();
     } else if (shooter === 'enemy') {
       this.enemyHandler();
     }
-  }
+  };
 
-  placeShip(cellCoords: coordsType) {
+  private placeShip = (cellCoords: coordsType) => {
     const { x, y } = cellCoords;
 
     const { shipsToPlace, playerBoard } = store.getStore();
@@ -114,5 +99,9 @@ export class GameController {
         store.setStore({ phase: 'BATTLE', message: 'Ваш ход' });
       }
     }
-  }
+  };
+
+  destroy = () => {
+    document.removeEventListener('mousedown', this.handleMouseDown);
+  };
 }
