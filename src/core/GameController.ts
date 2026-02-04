@@ -31,9 +31,10 @@ export class GameController {
     PhaseHandlers[phase]?.(cell, this);
   };
 
-  private enemyHandler = () => {
+  private async enemyHandler() {
     const board = store.getStore().playerBoard.map((row) => [...row]);
     const coors = this.enemyAI.getNextShot();
+    await new Promise((res) => setTimeout(res, 800));
     const { board: playerBoard, result } = fireShot(coors, board);
     store.setStore({ playerBoard });
     if (result === 'hit' || result === 'null') {
@@ -41,7 +42,7 @@ export class GameController {
     } else if (result === 'miss') {
       store.setStore({ currentTurn: 'PLAYER' });
     }
-  };
+  }
 
   public playerHandler(cellCoords: coordsType) {
     const board = store.getStore().enemyBoard.map((row) => [...row]);
