@@ -4,6 +4,7 @@ import { Board } from '../components/Board';
 import { GameController } from './GameController';
 import type { GAME_CONFIG } from '../GameConfig';
 import { store } from './Store';
+import type { Bullet } from '../components/Bullet';
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -15,6 +16,7 @@ export class Game {
   private interval: number;
   private lastTime = 0;
   private gameController: GameController;
+  private effects: Bullet[] = [];
 
   constructor(canvas: HTMLCanvasElement, config: typeof GAME_CONFIG) {
     this.interval = 1000 / config.FPS;
@@ -39,11 +41,15 @@ export class Game {
       ctx: this.ctx,
       boardType: 'enemy',
       board: enemyBoard,
-      colors: config.colors,
+      colors: { ...config.colors, ship: config.colors.empty },
     });
 
     this.initBackgrounds();
-    this.gameController = new GameController(this.playerBoard, this.enemyBoard);
+    this.gameController = new GameController(
+      this.playerBoard,
+      this.enemyBoard,
+      this,
+    );
     this.gameController.init();
   }
 
@@ -62,9 +68,12 @@ export class Game {
     this.gameController.destroy();
   }
 
+  addEffect(effect: Bullet) {
+    this.effects.push(effect);
+  }
+
   public render(currentTime: number = 0) {
     requestAnimationFrame((time) => this.render(time));
-
     const deltaTime = currentTime - this.lastTime;
 
     if (deltaTime > this.interval) {
@@ -76,6 +85,12 @@ export class Game {
       this.messages.render();
       this.playerBoard.render(playerBoard);
       this.enemyBoard.render(enemyBoard);
+
+      this.effects = this.effects.filter((effect) => {
+        effect.render();
+
+        return !effect.isFinished;
+      });
     }
   }
 }

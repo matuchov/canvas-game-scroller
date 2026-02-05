@@ -1,85 +1,70 @@
+import { EnemyAI } from './../components/EnemyAI';
 import type { Board } from '../components/Board';
 import type { coordsType } from '../components/Object';
 import { checkClick, coordsToCell } from '../utils/clickUtils';
-import { getRandomInt } from '../utils/Math';
+import { fireShot } from '../utils/fireShot';
 import { validatePlacement } from '../utils/ValidateShip';
-import { store, type GameStore } from './Store';
+import { store } from './Store';
+import { PhaseHandlers } from '../utils/PhaseHandlers';
+import type { Game } from './Game';
 
 export class GameController {
   store: typeof store;
   playerBoard: Board;
   enemyBoard: Board;
+  enemyAI = new EnemyAI();
+  game: Game;
 
-  constructor(playerBoard: Board, enemyBoard: Board) {
+  constructor(playerBoard: Board, enemyBoard: Board, game: Game) {
     this.store = store;
     this.playerBoard = playerBoard;
     this.enemyBoard = enemyBoard;
+    this.game = game;
   }
   init = () => {
     document.addEventListener('mousedown', this.handleMouseDown);
   };
 
-  private enemyHandler = () => {
-    const { phase, currentTurn } = store.getStore();
-
-    if (phase === 'BATTLE' && currentTurn === 'ENEMY') {
-      const x = getRandomInt(0, 9);
-      const y = getRandomInt(0, 9);
-      this.fireShot({ x, y }, 'enemy');
-    }
-  };
-
   private handleMouseDown = (e: MouseEvent) => {
-    const x = Math.floor(e.offsetX);
-    const y = Math.floor(e.offsetY);
-    const { currentTurn, phase } = store.getStore();
-    const clikOnEnemyBoard = checkClick({ x, y }, this.enemyBoard);
-    const clikOnPlayerBoard = checkClick({ x, y }, this.playerBoard);
-
-    if (clikOnEnemyBoard && currentTurn === 'PLAYER' && phase === 'BATTLE') {
-      this.fireShot(coordsToCell({ x, y }, this.enemyBoard), 'player');
-    } else if (clikOnPlayerBoard && phase === 'SETUP') {
-      this.placeShip(coordsToCell({ x, y }, this.playerBoard));
-    }
+    const { phase } = store.getStore();
+    const coords = { x: e.offsetX, y: e.offsetY };
+    const targetBoard = phase === 'SETUP' ? this.playerBoard : this.enemyBoard;
+    if (!checkClick(coords, targetBoard)) return;
+    const cell = coordsToCell(coords, targetBoard);
+    PhaseHandlers[phase]?.(cell, this);
   };
 
-  private fireShot = (cellCoords: coordsType, shooter: 'player' | 'enemy') => {
-    const { x, y } = cellCoords;
-    const currentBoard =
-      shooter === 'player'
-        ? store.getStore().enemyBoard
-        : store.getStore().playerBoard;
-    const cellState = currentBoard[y][x];
-    const board = currentBoard.map((row) => [...row]);
-
-    if (cellState === 'ship') {
-      board[y][x] = 'hited';
-      this.store.setStore(
-        shooter === 'player' ? { enemyBoard: board } : { playerBoard: board },
-      );
-      if (shooter === 'enemy') this.enemyHandler();
-    } else if (cellState === 'empty') {
-      board[y][x] = 'miss';
-
-      this.store.setStore(
-        shooter === 'player'
-          ? { enemyBoard: board, currentTurn: 'ENEMY' }
-          : { playerBoard: board, currentTurn: 'PLAYER' },
-      );
+  private async enemyHandler() {
+    const board = store.getStore().playerBoard.map((row) => [...row]);
+    const coors = this.enemyAI.getNextShot();
+    await new Promise((res) => setTimeout(res, 800));
+    const { board: playerBoard, result } = fireShot(coors, board);
+    store.setStore({ playerBoard });
+    if (result === 'hit' || result === 'null') {
       this.enemyHandler();
-    } else if (shooter === 'enemy') {
+    } else if (result === 'miss') {
+      store.setStore({ currentTurn: 'PLAYER', message: 'Ваш ход' });
+    }
+  }
+
+  public playerHandler(cellCoords: coordsType) {
+    const board = store.getStore().enemyBoard.map((row) => [...row]);
+    const { board: enemyBoard, result } = fireShot(cellCoords, board);
+    store.setStore({ enemyBoard });
+    if (result === 'miss') {
+      store.setStore({ currentTurn: 'ENEMY', message: 'Ход противника' });
       this.enemyHandler();
     }
-  };
+  }
 
-  private placeShip = (cellCoords: coordsType) => {
+  public placeShip = (cellCoords: coordsType) => {
     const { x, y } = cellCoords;
 
     const { shipsToPlace, playerBoard } = store.getStore();
     const currentShip = shipsToPlace[0];
 
     if (validatePlacement(playerBoard, x, y, currentShip, 'row')) {
-      const newBoard = [...playerBoard];
+      const newBoard = playerBoard.map((row) => [...row]);
       const shipCoord = Array(currentShip)
         .fill(0)
         .map((_, i) => {

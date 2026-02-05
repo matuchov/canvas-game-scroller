@@ -9,7 +9,7 @@ export const PhaseHandlers = {
   BATTLE: (coords: coordsType, controller: GameController) => {
     const { currentTurn } = store.getStore();
     if (currentTurn === 'PLAYER') {
-      controller.fireShot(coords, 'player');
+      controller.playerHandler(coords);
     }
   },
   RESULT: () => {},

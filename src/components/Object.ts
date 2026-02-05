@@ -35,7 +35,7 @@ export class BaseElement {
     }
 
     this.canvaseSize = { x: this.ctx.lineWidth, y: this.ctx.lineDashOffset };
-    this.start = { x: position.x, y: position.y };
+    this.start = position;
   }
 
   draw() {
